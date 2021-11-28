@@ -24,9 +24,9 @@ $ yarn add @nodesecure/authors
 ## Usage example
 
 ```js
-import * as authors from "@nodesecure/authors";
+import { extractAndOptimizeUsers } from "@nodesecure/authors";
 
-
+const authors = extractAndOptimizeUsers(authors);
 ```
 
 ## API

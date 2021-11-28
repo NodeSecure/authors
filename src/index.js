@@ -1,3 +1,4 @@
+/* eslint-disable no-sequences */
 /**
  * Email from npm user name: https://r.cnpmjs.org/-/user/org.couchdb.user:fraxken
  *
@@ -5,44 +6,63 @@
  */
 
 // See: scanner/types/scanner.d.ts -> Dependency.metadata
-export async function extractAndOptimizeUsers(dependencyMetadata) {
-  if (!'author', 'maintainers', 'publishers' in dependencyMetadata) {
-    throw new TypeError(
-      "There is a problem with your object parameters, please check if you have 'author', 'maintainers','publishers'"
-    );
+export function extractAndOptimizeUsers(dependencyMetadata) {
+  if (!dependencyMetadata) {
+    return [];
   }
+
   const { author, maintainers, publishers } = dependencyMetadata;
-  const formattedResponse = formatResponse(author, maintainers, publishers);
+
+  return formatResponse(author, maintainers, publishers);
 }
 
 function splitAuthorNameEmail(author) {
   const indexStartEmail = author.search(/[<]/g);
-  const indexEndEmail = author.search(/[>]/g)
-  if (!indexStartEmail && !indexEndEmail) {
-    return author
-  }
-  return {
-    name: author.substring(0, indexStartEmail).trim(),
-    email: author.substring(indexStartEmail, indexEndEmail).trim()
-  }
-}
+  const indexEndEmail = author.search(/[>]/g);
 
-// Format response
-function formatResponse(author, maintainers, publishers) {
-  const authors = [];
-
-  const objectAuthor = (name) => {
+  if (indexStartEmail === -1 && indexEndEmail === -1) {
     return {
-      name,
-      email: '',
+      name: author,
+      email: ""
     };
   }
 
-  for (const item of author) {
-    if ('email' in item) {
-      authors.push(splitAuthorNameEmail(item))
-    } else {
-      authors.push(objectAuthor(item))
+  return {
+    name: author.substring(0, indexStartEmail).trim(),
+    email: author.substring(indexStartEmail, indexEndEmail).trim()
+  };
+}
+
+function formatResponse(author, maintainers, publishers) {
+  const authors = new Array();
+
+  function foundAuthorName(author) {
+    return authors.find((el) => el.name === author.name);
+  }
+
+  authors.push(splitAuthorNameEmail(author));
+
+  for (const maintainer of maintainers) {
+    if (foundAuthorName(maintainer)) {
+      const authorIndex = authors.findIndex((el) => el.name === maintainer.name);
+
+      if (authors[authorIndex].email && authors[authorIndex].name) {
+        continue;
+      }
+      authors[authorIndex] = maintainer;
+    }
+    else {
+      authors.push(maintainer);
     }
   }
+
+  for (const publisher of publishers) {
+    if (!foundAuthorName(publisher)) {
+      authors.push({
+        name: publisher.name
+      });
+    }
+  }
+
+  return authors;
 }
