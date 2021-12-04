@@ -13,12 +13,24 @@ const nsecureTestFile = JSON.parse(
   )
 );
 
-test("should passed", (tape) => {
-  for (const dep of Object.values(nsecureTestFile)) {
-    for (const meta of Object.values(dep)) {
-      const authors = extractAndOptimizeUsers(meta.metadata);
-      console.log(authors);
-    }
-  }
+test("check author is splitted correctly", async(tape) => {
+  const packageTest = nsecureTestFile.dependencies.cookie;
+
+  const authors = await extractAndOptimizeUsers(packageTest.metadata);
+  tape.deepEqual(authors, [
+    { name: "Roman Shtylman", email: "shtylman@gmail.com" },
+    { name: "dougwilson", email: "doug@somethingdoug.com" }
+  ]);
+  tape.end();
+});
+
+test("There is no duplicate authors in response", async(tape) => {
+  const packageTest = nsecureTestFile.dependencies.etag;
+
+  const authors = await extractAndOptimizeUsers(packageTest.metadata);
+  tape.deepEqual(authors, [
+    { name: "kesla", email: "" },
+    { name: "dougwilson", email: "doug@somethingdoug.com" }
+  ]);
   tape.end();
 });

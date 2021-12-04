@@ -1,19 +1,20 @@
-/* eslint-disable no-sequences */
-/**
- * Email from npm user name: https://r.cnpmjs.org/-/user/org.couchdb.user:fraxken
- *
- * for metadata: https://github.com/sindresorhus/npm-user (scraping).
- */
+// Import Internal Dependencies
+import { useLevenshtein } from "./levenshtein.js";
+
+// Import Third-Party Dependencies
+import * as httpie from "@myunisoft/httpie";
 
 // See: scanner/types/scanner.d.ts -> Dependency.metadata
-export function extractAndOptimizeUsers(dependencyMetadata) {
+export async function extractAndOptimizeUsers(dependencyMetadata) {
   if (!dependencyMetadata) {
     return [];
   }
 
   const { author, maintainers, publishers } = dependencyMetadata;
 
-  return formatResponse(author, maintainers, publishers);
+  const authors = await formatResponse(author, maintainers, publishers);
+
+  return authors;
 }
 
 function splitAuthorNameEmail(author) {
@@ -33,7 +34,7 @@ function splitAuthorNameEmail(author) {
   };
 }
 
-function formatResponse(author, maintainers, publishers) {
+async function formatResponse(author, maintainers, publishers) {
   const authors = new Array();
 
   function foundAuthorName(author) {
@@ -49,20 +50,41 @@ function formatResponse(author, maintainers, publishers) {
       if (authors[authorIndex].email && authors[authorIndex].name) {
         continue;
       }
-      authors[authorIndex] = maintainer;
+      else {
+        authors[authorIndex] = maintainer;
+      }
     }
     else {
       authors.push(maintainer);
     }
   }
 
-  for (const publisher of publishers) {
-    if (!foundAuthorName(publisher)) {
-      authors.push({
-        name: publisher.name
-      });
+  for await (const publisher of publishers) {
+    try {
+      const { data } = await httpie.get(`https://r.cnpmjs.org/-/user/org.couchdb.user:${publisher.name}`);
+      const { name, email } = data;
+
+      if (foundAuthorName(publisher)) {
+        const authorIndex = authors.findIndex((el) => el.name === publisher.name);
+
+        if (authors[authorIndex].email && authors[authorIndex].name) {
+          continue;
+        }
+        else {
+          authors[authorIndex] = publisher;
+        }
+      }
+      else {
+        authors.push({
+          name,
+          email
+        });
+      }
+    }
+    catch (err) {
+      continue;
     }
   }
 
-  return authors;
+  return useLevenshtein(authors);
 }
