@@ -12,9 +12,7 @@ export async function extractAndOptimizeUsers(dependencyMetadata) {
 
   const { author, maintainers, publishers } = dependencyMetadata;
 
-  const authors = await formatResponse(author, maintainers, publishers);
-
-  return authors;
+  return formatResponse(author, maintainers, publishers);
 }
 
 function splitAuthorNameEmail(author) {
@@ -59,7 +57,7 @@ async function formatResponse(author, maintainers, publishers) {
     }
   }
 
-  for await (const publisher of publishers) {
+  for (const publisher of publishers) {
     try {
       const { data } = await httpie.get(`https://r.cnpmjs.org/-/user/org.couchdb.user:${publisher.name}`);
       const { name, email } = data;

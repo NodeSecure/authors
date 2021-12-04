@@ -34,3 +34,17 @@ test("There is no duplicate authors in response", async(tape) => {
   ]);
   tape.end();
 });
+
+test("Test path-to-regexp package => duplicate email", async(tape) => {
+  const packageTest = nsecureTestFile.dependencies["path-to-regexp"];
+
+  const authors = await extractAndOptimizeUsers(packageTest.metadata);
+  tape.deepEqual(authors, [
+    { name: "tjholowaychuk", email: "" },
+    { name: "blakeembrey", email: "hello@blakeembrey.com" },
+    { name: "dougwilson", email: "doug@somethingdoug.com" },
+    { name: "jongleberry", email: "jonathanrichardong@gmail.com" },
+    { name: "defunctzombie", email: "shtylman@gmail.com" }
+  ]);
+  tape.end();
+});
