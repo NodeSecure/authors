@@ -16,14 +16,11 @@ export async function extractAndOptimizeUsers(dependencyMetadata) {
 }
 
 function splitAuthorNameEmail(author) {
-  const indexStartEmail = author.search(/[<]/g);
-  const indexEndEmail = author.search(/[>]/g);
+  const indexStartEmail = author.name.search(/[<]/g);
+  const indexEndEmail = author.name.search(/[>]/g);
 
   if (indexStartEmail === -1 && indexEndEmail === -1) {
-    return {
-      name: author,
-      email: ""
-    };
+    return { ...author };
   }
 
   return {
@@ -56,7 +53,18 @@ async function formatResponse(author, maintainers, publishers) {
   }
 
   for (const publisher of publishers) {
-    try {
+    if (foundAuthorName(publisher)) {
+      const authorIndex = authors.findIndex((el) => el.name === publisher.name);
+
+      if (authors[authorIndex].email && authors[authorIndex].name) {
+        continue;
+      }
+      authors[authorIndex] = publisher;
+    }
+    else {
+      authors.push(publisher);
+    }
+    /*     try {
       const { data } = await httpie.get(`https://r.cnpmjs.org/-/user/org.couchdb.user:${publisher.name}`);
       const { name, email } = data;
 
@@ -77,7 +85,7 @@ async function formatResponse(author, maintainers, publishers) {
     }
     catch (err) {
       continue;
-    }
+    } */
   }
 
   return useLevenshtein(authors);
