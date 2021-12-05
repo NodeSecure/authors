@@ -64,28 +64,6 @@ async function formatResponse(author, maintainers, publishers) {
     else {
       authors.push(publisher);
     }
-    /*     try {
-      const { data } = await httpie.get(`https://r.cnpmjs.org/-/user/org.couchdb.user:${publisher.name}`);
-      const { name, email } = data;
-
-      if (foundAuthorName(publisher)) {
-        const authorIndex = authors.findIndex((el) => el.name === publisher.name);
-
-        if (authors[authorIndex].email && authors[authorIndex].name) {
-          continue;
-        }
-        authors[authorIndex] = publisher;
-      }
-      else {
-        authors.push({
-          name,
-          email
-        });
-      }
-    }
-    catch (err) {
-      continue;
-    } */
   }
 
   return useLevenshtein(authors);
