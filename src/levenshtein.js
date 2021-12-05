@@ -11,11 +11,7 @@ function separateWord(word) {
     }
   }
 
-  if (indexSeparator !== -1) {
-    return word.split(separatorFound);
-  }
-
-  return word;
+  return indexSeparator === -1 ? word : word.split(separatorFound);
 }
 
 function isSimilar(word1, word2, isWordSeparated = false) {
@@ -55,8 +51,7 @@ function isSimilar(word1, word2, isWordSeparated = false) {
 }
 
 export function useLevenshtein(authors) {
-  const authorsResponse = [];
-  authorsResponse.push(authors[0]);
+  const authorsResponse = [authors[0]];
 
   iterationAuthor:
   for (let index = 1; index < authors.length; index++) {

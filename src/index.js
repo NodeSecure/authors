@@ -33,7 +33,7 @@ function splitAuthorNameEmail(author) {
 }
 
 async function formatResponse(author, maintainers, publishers) {
-  const authors = new Array();
+  const authors = [];
 
   function foundAuthorName(author) {
     return authors.find((el) => el.name === author.name);
@@ -48,9 +48,7 @@ async function formatResponse(author, maintainers, publishers) {
       if (authors[authorIndex].email && authors[authorIndex].name) {
         continue;
       }
-      else {
-        authors[authorIndex] = maintainer;
-      }
+      authors[authorIndex] = maintainer;
     }
     else {
       authors.push(maintainer);
@@ -68,9 +66,7 @@ async function formatResponse(author, maintainers, publishers) {
         if (authors[authorIndex].email && authors[authorIndex].name) {
           continue;
         }
-        else {
-          authors[authorIndex] = publisher;
-        }
+        authors[authorIndex] = publisher;
       }
       else {
         authors.push({
