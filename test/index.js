@@ -5,7 +5,7 @@ import { readFile } from "fs/promises";
 import test from "tape";
 
 // Import Internal Dependencies
-import { extractAndOptimizeUsers } from "../src/index.js";
+import { extractAllAuthorsFromLibrary, extractAndOptimizeUsers } from "../src/index.js";
 
 const nsecureTestFile = JSON.parse(
   await readFile(

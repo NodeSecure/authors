@@ -14,7 +14,13 @@ function separateWord(word) {
   return indexSeparator === -1 ? word : word.split(separatorFound);
 }
 
-function isSimilar(word1, word2, isWordSeparated = false) {
+function isSimilar(firstWord, secondWord, isWordSeparated = false) {
+  if (!firstWord || !secondWord) {
+    return 2;
+  }
+  const word1 = firstWord.toLowerCase();
+  const word2 = secondWord.toLowerCase();
+
   if (isWordSeparated) {
     const word1Splitted = separateWord(word1);
     const word2Splitted = separateWord(word2);
@@ -58,8 +64,8 @@ export function useLevenshtein(authors) {
     const currAuthor = authors[index];
 
     for (const author of authorsResponse) {
-      if (isSimilar(author.email.toLowerCase(), currAuthor.email.toLowerCase()) < 2
-      || isSimilar(author.name.toLowerCase(), currAuthor.name.toLowerCase(), true) < 2) {
+      if (isSimilar(author.email, currAuthor.email) < 2
+      || isSimilar(author.name, currAuthor.name, true) < 2) {
         author.email = author.email.length > currAuthor.email.length ? author.email : currAuthor.email;
         author.name = author.name.length > currAuthor.name.length ? author.name : currAuthor.name;
         continue iterationAuthor;
