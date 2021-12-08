@@ -22,11 +22,8 @@ export function extractAllAuthorsFromLibrary(library) {
     const { author, maintainers, publishers } = dep.metadata;
 
     const authorsFound = formatResponse(author, maintainers, publishers);
-    if (authorsFound) {
-      for (const author of authorsFound) {
-        authors.push(author);
-      }
-    }
+
+    authors.push(...authorsFound);
   }
 
   return useLevenshtein(authors);
