@@ -12,8 +12,8 @@ export function extractAndOptimizeUsers(dependencyMetadata) {
   return formatResponse(author, maintainers, publishers);
 }
 
-export function extractAllAuthorsFromLibrary(library) {
-  if (!library) {
+export function extractAllAuthorsFromLibrary(library = {}) {
+  if (!("dependencies" in library)) {
     return [];
   }
 
