@@ -18,7 +18,7 @@ test("check author is splitted correctly", (tape) => {
 
   const authors = extractAndOptimizeUsers(packageTest.metadata);
   tape.deepEqual(authors, [
-    { name: "Roman Shtylman", email: "shtylman@gmail.com" },
+    { name: "Roman Shtylman", email: "shtylman@gmail.com", version: "0.1.2", at: "2014-04-16T23:00:21.566Z" },
     { name: "dougwilson", email: "doug@somethingdoug.com" }
   ]);
   tape.end();
