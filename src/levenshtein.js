@@ -29,10 +29,10 @@ export function isSimilar(firstWord, secondWord, isWordSeparated = false) {
     const word2Splitted = separateWord(word2);
 
     const firstWord = isSimilar(
-      word1Splitted instanceof Array ? word1Splitted[0] : null, 
+      word1Splitted instanceof Array ? word1Splitted[0] : null,
       word2Splitted instanceof Array ? word2Splitted[0] : null);
     const secondWord = isSimilar(
-      word1Splitted instanceof Array ? word1Splitted[1] : null, 
+      word1Splitted instanceof Array ? word1Splitted[1] : null,
       word2Splitted instanceof Array ? word2Splitted[1] : null
     );
 
