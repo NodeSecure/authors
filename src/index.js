@@ -1,11 +1,8 @@
 // Import Internal Dependencies
 import { useLevenshtein } from "./levenshtein.js";
 
-// Import Third-Party Dependencies
-import * as httpie from "@myunisoft/httpie";
-
 // See: scanner/types/scanner.d.ts -> Dependency.metadata
-export async function extractAndOptimizeUsers(dependencyMetadata) {
+export function extractAndOptimizeUsers(dependencyMetadata) {
   if (!dependencyMetadata) {
     return [];
   }
@@ -15,12 +12,32 @@ export async function extractAndOptimizeUsers(dependencyMetadata) {
   return formatResponse(author, maintainers, publishers);
 }
 
+export function extractAllAuthorsFromLibrary(library = {}) {
+  if (!("dependencies" in library)) {
+    return [];
+  }
+
+  const authors = [];
+  for (const dep of Object.values(library.dependencies)) {
+    const { author, maintainers, publishers } = dep.metadata;
+
+    const authorsFound = formatResponse(author, maintainers, publishers);
+
+    authors.push(...authorsFound);
+  }
+
+  return useLevenshtein(authors);
+}
+
 function splitAuthorNameEmail(author) {
   const indexStartEmail = author.name.search(/[<]/g);
   const indexEndEmail = author.name.search(/[>]/g);
 
   if (indexStartEmail === -1 && indexEndEmail === -1) {
-    return { ...author };
+    return {
+      name: author.name,
+      email: "email" in author ? author.email : ""
+    };
   }
 
   return {
@@ -29,7 +46,7 @@ function splitAuthorNameEmail(author) {
   };
 }
 
-async function formatResponse(author, maintainers, publishers) {
+function formatResponse(author, maintainers, publishers) {
   const authors = [];
 
   function foundAuthorName(author) {

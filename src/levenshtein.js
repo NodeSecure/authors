@@ -1,4 +1,7 @@
-function separateWord(word) {
+// Constant
+const KMaxLevenshtein = 2;
+
+export function separateWord(word) {
   const separators = [",", " ", "."];
   let separatorFound = "";
   let indexSeparator = -1;
@@ -14,15 +17,26 @@ function separateWord(word) {
   return indexSeparator === -1 ? word : word.split(separatorFound);
 }
 
-function isSimilar(word1, word2, isWordSeparated = false) {
+export function isSimilar(firstWord, secondWord, isWordSeparated = false) {
+  if (!firstWord || !secondWord) {
+    return KMaxLevenshtein;
+  }
+  const word1 = firstWord.toLowerCase();
+  const word2 = secondWord.toLowerCase();
+
   if (isWordSeparated) {
     const word1Splitted = separateWord(word1);
     const word2Splitted = separateWord(word2);
 
-    const firstWords = isSimilar(word1Splitted[0], word2Splitted[0] ? word2 : null);
-    const secondWord = isSimilar(word1Splitted[1], word2Splitted[1] ? word2 : null);
+    const firstWord = isSimilar(
+      word1Splitted instanceof Array ? word1Splitted[0] : null,
+      word2Splitted instanceof Array ? word2Splitted[0] : null);
+    const secondWord = isSimilar(
+      word1Splitted instanceof Array ? word1Splitted[1] : null,
+      word2Splitted instanceof Array ? word2Splitted[1] : null
+    );
 
-    return firstWords > secondWord ? secondWord : firstWords;
+    return firstWord > secondWord ? secondWord : firstWord;
   }
 
   const track = Array(word2.length + 1)
@@ -58,10 +72,15 @@ export function useLevenshtein(authors) {
     const currAuthor = authors[index];
 
     for (const author of authorsResponse) {
-      if (isSimilar(author.email.toLowerCase(), currAuthor.email.toLowerCase()) < 2
-      || isSimilar(author.name.toLowerCase(), currAuthor.name.toLowerCase(), true) < 2) {
+      if (isSimilar(author.email, currAuthor.email) < KMaxLevenshtein
+      || isSimilar(author.name, currAuthor.name, true) < KMaxLevenshtein) {
         author.email = author.email.length > currAuthor.email.length ? author.email : currAuthor.email;
         author.name = author.name.length > currAuthor.name.length ? author.name : currAuthor.name;
+
+        if ("version" in currAuthor) {
+          author.version = currAuthor.version;
+          author.at = currAuthor.at;
+        }
         continue iterationAuthor;
       }
     }
