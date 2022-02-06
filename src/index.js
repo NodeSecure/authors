@@ -2,17 +2,19 @@
 import { useLevenshtein } from "./levenshtein.js";
 
 // See: scanner/types/scanner.d.ts -> Dependency.metadata
-export function extractAndOptimizeUsers(dependencyMetadata) {
+export function extractAndOptimizeUsers(dependencyMetadata, flags) {
   if (!dependencyMetadata) {
     return [];
   }
 
   const { author, maintainers, publishers } = dependencyMetadata;
 
-  return formatResponse(author, maintainers, publishers);
+  const response = formatResponse({ author, maintainers, publishers }, flags);
+
+  return addFlagsInResponse(response, flags);
 }
 
-export function extractAllAuthorsFromLibrary(library = {}) {
+export function extractAllAuthorsFromLibrary(library = {}, flags) {
   if (!("dependencies" in library)) {
     return [];
   }
@@ -21,12 +23,41 @@ export function extractAllAuthorsFromLibrary(library = {}) {
   for (const dep of Object.values(library.dependencies)) {
     const { author, maintainers, publishers } = dep.metadata;
 
-    const authorsFound = formatResponse(author, maintainers, publishers);
+    const authorsFound = formatResponse({ author, maintainers, publishers });
 
     authors.push(...authorsFound);
   }
 
-  return useLevenshtein(authors);
+  const response = useLevenshtein(authors);
+
+  return addFlagsInResponse(response, flags);
+}
+
+function addFlagsInResponse(authors, flags = []) {
+  const flagsResponse = [];
+
+  if (Object.keys(flags).length === 0) {
+    return {
+      authors,
+      flags: []
+    };
+  }
+
+  for (const author of authors) {
+    for (const flag of flags) {
+      if (flag.name === author.name || flag.email === author.email) {
+        flagsResponse.push({
+          name: author.name,
+          email: author.email
+        });
+      }
+    }
+  }
+
+  return {
+    authors,
+    flags: flagsResponse
+  };
 }
 
 function splitAuthorNameEmail(author) {
@@ -46,7 +77,7 @@ function splitAuthorNameEmail(author) {
   };
 }
 
-function formatResponse(author, maintainers, publishers) {
+function formatResponse({ author, maintainers, publishers }, flags) {
   const authors = [];
 
   function foundAuthorName(author) {
