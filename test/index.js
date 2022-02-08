@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
 // Import Node.js Dependencies
-import { cp } from "fs";
 import { readFile } from "fs/promises";
 
 // Import Third-party Dependencies
