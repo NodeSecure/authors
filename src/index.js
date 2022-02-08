@@ -20,10 +20,17 @@ export function extractAllAuthorsFromLibrary(library = {}, flags) {
   }
 
   const authors = [];
-  for (const dep of Object.values(library.dependencies)) {
-    const { author, maintainers, publishers } = dep.metadata;
 
-    const authorsFound = formatResponse({ author, maintainers, publishers });
+  for (let index = 0; index < Object.values(library.dependencies).length; index++) {
+    const currPackage = {
+      packageName: Object.keys(library.dependencies)[index],
+      ...Object.values(library.dependencies)[index]
+    };
+
+    const { author, maintainers, publishers } = currPackage.metadata;
+    const { packageName } = currPackage;
+
+    const authorsFound = formatResponse({ author, maintainers, publishers, packageName });
 
     authors.push(...authorsFound);
   }
@@ -38,8 +45,7 @@ function addFlagsInResponse(authors, flags = []) {
 
   if (Object.keys(flags).length === 0) {
     return {
-      authors,
-      flags: []
+      authors
     };
   }
 
@@ -48,7 +54,8 @@ function addFlagsInResponse(authors, flags = []) {
       if (flag.name === author.name || flag.email === author.email) {
         flagsResponse.push({
           name: author.name,
-          email: author.email
+          email: author.email,
+          packageName: author.packageName ? author.packageName : null
         });
       }
     }
@@ -77,7 +84,7 @@ function splitAuthorNameEmail(author) {
   };
 }
 
-function formatResponse({ author, maintainers, publishers }, flags) {
+function formatResponse({ author, maintainers, publishers, packageName = null }) {
   const authors = [];
 
   function foundAuthorName(author) {
@@ -114,5 +121,5 @@ function formatResponse({ author, maintainers, publishers }, flags) {
     }
   }
 
-  return useLevenshtein(authors);
+  return useLevenshtein(authors, packageName);
 }

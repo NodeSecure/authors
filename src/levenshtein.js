@@ -64,7 +64,7 @@ export function isSimilar(firstWord, secondWord, isWordSeparated = false) {
   return track[word2.length][word1.length];
 }
 
-export function useLevenshtein(authors) {
+export function useLevenshtein(authors, packageName) {
   const authorsResponse = [authors[0]];
 
   iterationAuthor:
@@ -76,6 +76,9 @@ export function useLevenshtein(authors) {
       || isSimilar(author.name, currAuthor.name, true) < KMaxLevenshtein) {
         author.email = author.email.length > currAuthor.email.length ? author.email : currAuthor.email;
         author.name = author.name.length > currAuthor.name.length ? author.name : currAuthor.name;
+        if (packageName) {
+          author.packageName = packageName;
+        }
 
         if ("version" in currAuthor) {
           author.version = currAuthor.version;
