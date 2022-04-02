@@ -2,8 +2,7 @@
 import { Maintainer } from "@npm/types";
 import { Scanner } from "@nodesecure/scanner";
 
-export function extractAndOptimizeUsers(maintainers: Maintainer): authorsResponse
-export function extractAllAuthorsFromLibrary(library: Scanner.Payload): authorsResponse
+export function extractAllAuthorsFromLibrary(library: Scanner.Payload, flags: flagAuthor[]): authorsResponse
 
 export interface authorsResponse {
   authors: Maintainer[] | [],
@@ -12,5 +11,4 @@ export interface authorsResponse {
 export interface flagAuthor {
   name: string,
   email: string,
-  foundIn: string[] | null
 }
