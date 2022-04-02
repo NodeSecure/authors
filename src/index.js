@@ -1,72 +1,6 @@
 // Import Internal Dependencies
 import { useLevenshtein } from "./levenshtein.js";
 
-// See: scanner/types/scanner.d.ts -> Dependency.metadata
-export function extractAndOptimizeUsers(dependencyMetadata, flags) {
-  if (!dependencyMetadata) {
-    return [];
-  }
-
-  const { author, maintainers, publishers } = dependencyMetadata;
-
-  const response = formatResponse({ author, maintainers, publishers }, flags);
-
-  return addFlagsInResponse(response, flags);
-}
-
-export function extractAllAuthorsFromLibrary(library = {}, flags) {
-  if (!("dependencies" in library)) {
-    return [];
-  }
-
-  const authors = [];
-
-  for (let index = 0; index < Object.values(library.dependencies).length; index++) {
-    const currPackage = {
-      packageName: Object.keys(library.dependencies)[index],
-      ...Object.values(library.dependencies)[index]
-    };
-
-    const { author, maintainers, publishers } = currPackage.metadata;
-    const { packageName } = currPackage;
-
-    const authorsFound = formatResponse({ author, maintainers, publishers, packageName });
-
-    authors.push(...authorsFound);
-  }
-
-  const response = useLevenshtein(authors);
-
-  return addFlagsInResponse(response, flags);
-}
-
-function addFlagsInResponse(authors, flags = []) {
-  const flagsResponse = [];
-
-  if (Object.keys(flags).length === 0) {
-    return {
-      authors
-    };
-  }
-
-  for (const author of authors) {
-    for (const flag of flags) {
-      if (flag.name === author.name || flag.email === author.email) {
-        flagsResponse.push({
-          name: author.name,
-          email: author.email,
-          packageName: author.packageName ? author.packageName : null
-        });
-      }
-    }
-  }
-
-  return {
-    authors,
-    flags: flagsResponse
-  };
-}
-
 function splitAuthorNameEmail(author) {
   const indexStartEmail = author.name.search(/[<]/g);
   const indexEndEmail = author.name.search(/[>]/g);
@@ -84,42 +18,84 @@ function splitAuthorNameEmail(author) {
   };
 }
 
-function formatResponse({ author, maintainers, publishers, packageName = null }) {
+export function extractAllAuthorsFromLibrary(library, flags = []) {
+  if (!("dependencies" in library)) {
+    return [];
+  }
+
   const authors = [];
 
-  function foundAuthorName(author) {
-    return authors.find((el) => el.name === author.name);
+  for (let index = 0; index < Object.values(library.dependencies).length; index++) {
+    const currPackage = {
+      packageName: Object.keys(library.dependencies)[index],
+      ...Object.values(library.dependencies)[index]
+    };
+
+    const { author, maintainers, publishers } = currPackage.metadata;
+    const packageMeta = {
+      homepage: currPackage.metadata.homepage || "",
+      spec: currPackage.packageName,
+      versions: currPackage.metadata.lastVersion
+    };
+
+    const authorsFound = formatAuthors({ author, maintainers, publishers });
+
+    for (const author of authorsFound) {
+      authors.push({
+        name: author.name,
+        email: author.email,
+        flagged: false,
+        packages: [{
+          ...packageMeta,
+          isPublishers: Boolean(author.at)
+        }]
+      });
+    }
   }
+
+  return addFlagsInResponse(useLevenshtein(authors), flags);
+}
+
+function addFlagsInResponse(authors, flags) {
+  for (const author of authors) {
+    for (const flag of flags) {
+      if (flag.name === author.name || flag.email === author.email) {
+        author.flagged = true;
+      }
+    }
+  }
+
+  return authors;
+}
+
+
+function iterateOver(iterable, arrayAuthors) {
+  for (const contributor of iterable) {
+    if (arrayAuthors.find((el) => el.name === contributor.name)) {
+      const index = arrayAuthors.findIndex((el) => el.name === contributor.name);
+
+      if (arrayAuthors[index].email && arrayAuthors[index].name) {
+        if (contributor.at && contributor.version) {
+          arrayAuthors[index].at = contributor.at;
+          arrayAuthors[index].version = contributor.version;
+        }
+        continue;
+      }
+      arrayAuthors[index] = contributor;
+    }
+    else {
+      arrayAuthors.push(contributor);
+    }
+  }
+}
+
+function formatAuthors({ author, maintainers, publishers }) {
+  const authors = [];
 
   authors.push(splitAuthorNameEmail(author));
 
-  for (const maintainer of maintainers) {
-    if (foundAuthorName(maintainer)) {
-      const authorIndex = authors.findIndex((el) => el.name === maintainer.name);
+  iterateOver(maintainers, authors);
+  iterateOver(publishers, authors);
 
-      if (authors[authorIndex].email && authors[authorIndex].name) {
-        continue;
-      }
-      authors[authorIndex] = maintainer;
-    }
-    else {
-      authors.push(maintainer);
-    }
-  }
-
-  for (const publisher of publishers) {
-    if (foundAuthorName(publisher)) {
-      const authorIndex = authors.findIndex((el) => el.name === publisher.name);
-
-      if (authors[authorIndex].email && authors[authorIndex].name) {
-        continue;
-      }
-      authors[authorIndex] = publisher;
-    }
-    else {
-      authors.push(publisher);
-    }
-  }
-
-  return useLevenshtein(authors, packageName);
+  return useLevenshtein(authors);
 }
