@@ -26,8 +26,11 @@ $ yarn add @nodesecure/authors
 ```js
 import { extractAllAuthorsFromLibrary } from "@nodesecure/authors";
 
-const authors = extractAllAuthorsFromLibrary(library);
+const flaggedAuthors = [
+  { name: "Blake Embrey", email: "hello@blakeembrey.com" }
+];
 
+const authors = extractAllAuthorsFromLibrary(library, flaggedAuthors);
 // Expect authors to be following this schema
 // [
 //   {
