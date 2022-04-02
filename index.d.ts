@@ -2,7 +2,7 @@
 import { Maintainer } from "@npm/types";
 import { Scanner } from "@nodesecure/scanner";
 
-export function extractAllAuthorsFromLibrary(library: Scanner.Payload, flags: flagAuthor[]): authorsResponse
+export function extractAllAuthorsFromLibrary(library: Scanner.Payload, flags: flagAuthor[] | null): authorsResponse
 
 export interface authorsResponse {
   authors: Maintainer[] | [],
