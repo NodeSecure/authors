@@ -24,9 +24,32 @@ $ yarn add @nodesecure/authors
 ## Usage example
 
 ```js
-import { extractAndOptimizeUsers } from "@nodesecure/authors";
+import { extractAllAuthorsFromLibrary } from "@nodesecure/authors";
 
-const authors = extractAndOptimizeUsers(authors);
+const authors = extractAllAuthorsFromLibrary(library);
+
+// Expect authors to be following this schema
+// [
+//   {
+//     {
+//     name: "Blake Embrey",
+//     email: "hello@blakeembrey.com",
+//     flagged: true,
+//     packages: [
+//       {
+//         homepage: "https://github.com/blakeembrey/array-flatten",
+//         spec: "array-flatten",
+//         versions: "3.0.0",
+//         isPublishers: false
+//       },
+//       {
+//         homepage: "https://github.com/pillarjs/path-to-regexp#readme",
+//         spec: "path-to-regexp",
+//         versions: "6.2.0",
+//         isPublishers: true
+//       }
+//   }
+// ]
 ```
 
 ## API
