@@ -50,11 +50,11 @@ test("useLevenshtein on authors list", (tape) => {
   const authors = [
     { name: "Roman Shtylman", email: "shtylman@gmail.com" },
     { name: "dougwilson", email: "doug@somethingdoug.com" },
-    { name: "shtylman", email: "shtylman@gmail.com", version: "0.1.2", at: "2014-04-16T23:00:21.566Z" }
+    { name: "shtylman", email: "shtylman@gmail.com" }
   ];
   const authorsFormatted = useLevenshtein(authors);
   tape.deepEqual(authorsFormatted, [
-    { name: "Roman Shtylman", email: "shtylman@gmail.com", version: "0.1.2", at: "2014-04-16T23:00:21.566Z" },
+    { name: "Roman Shtylman", email: "shtylman@gmail.com" },
     { name: "dougwilson", email: "doug@somethingdoug.com" }
   ]);
   tape.end();
@@ -64,11 +64,11 @@ test("useLevenshtein on authors list containing duplicate email", (tape) => {
   const authors = [
     { name: "Roman Shtylman", email: "shtylman@gmail.com" },
     { name: "dougwilson", email: "doug@somethingdoug.com" },
-    { name: "shtylman", email: "shtylman@gmail.com", version: "0.1.2", at: "2014-04-16T23:00:21.566Z" }
+    { name: "shtylman", email: "shtylman@gmail.com" }
   ];
   const authorsFormatted = useLevenshtein(authors);
   tape.deepEqual(authorsFormatted, [
-    { name: "Roman Shtylman", email: "shtylman@gmail.com", version: "0.1.2", at: "2014-04-16T23:00:21.566Z" },
+    { name: "Roman Shtylman", email: "shtylman@gmail.com" },
     { name: "dougwilson", email: "doug@somethingdoug.com" }
   ]);
   tape.end();
