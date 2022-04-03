@@ -34,7 +34,6 @@ const authors = extractAllAuthorsFromLibrary(library, flaggedAuthors);
 // Expect authors to be following this schema
 // [
 //   {
-//     {
 //     name: "Blake Embrey",
 //     email: "hello@blakeembrey.com",
 //     flagged: true,

@@ -4,7 +4,7 @@
   "description": "NodeSecure (npm) authors analysis package",
   "exports": "./src/index.js",
   "type": "module",
-  "types": "index.d.ts",
+  "types": "./src/index.d.ts",
   "scripts": {
     "lint": "cross-env eslint ./src",
     "test-only": "cross-env esm-tape-runner 'test/**/*.js' | tap-monkey",
@@ -22,7 +22,6 @@
     "npm"
   ],
   "files": [
-    "index.d.ts",
     "src"
   ],
   "author": "GENTILHOMME Thomas <gentilhomme.thomas@gmail.com>",
