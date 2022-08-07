@@ -17,7 +17,7 @@ const nsecureTestFile = JSON.parse(
 test("All authors from library without flags involved", async(tape) => {
   const packageTest = nsecureTestFile;
 
-  const authors = await extractAllAuthorsFromLibrary(packageTest);
+  const authors = await extractAllAuthorsFromLibrary(packageTest, { flags: [], domainInformations: true });
 
   tape.isNot(authors.length, 0, "There should be authors in the response");
   tape.end();
@@ -28,8 +28,10 @@ test("test authors from library with flag", async(tape) => {
   const flaggedAuthors = [
     { name: "Blakeembrey", email: "hello@blakeembrey.com" }
   ];
-  const authors = await extractAllAuthorsFromLibrary(packageTest, flaggedAuthors);
-  tape.deepEqual(authors.slice(0, 1), [{
+  const authors = await extractAllAuthorsFromLibrary(packageTest, {
+    flags: flaggedAuthors
+  });
+  tape.deepEqual(authors.slice(4, 5), [{
     name: "Blake Embrey",
     email: "hello@blakeembrey.com",
     flagged: true,
@@ -43,7 +45,7 @@ test("test authors from library with flag", async(tape) => {
       {
         homepage: "https://github.com/pillarjs/path-to-regexp#readme",
         spec: "path-to-regexp",
-        versions: "6.2.0",
+        versions: "6.2.1",
         isPublishers: true
       }
     ]

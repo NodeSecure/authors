@@ -1,12 +1,21 @@
 // Import Third-party Dependencies
-import { Maintainer } from "@npm/types";
 import { Scanner } from "@nodesecure/scanner";
 
-export function extractAllAuthorsFromLibrary(library: Scanner.Payload, flags: flagAuthor[] | null): Promise<authorsResponse>
+export function extractAllAuthorsFromLibrary(library: Scanner.Payload, opts: options): Promise<authorsResponse[]>
+
+export interface options {
+  flags: flagAuthor[],
+  domainInformations: boolean,
+}
 
 export interface authorsResponse {
-  authors: Maintainer[] | [],
-  flags: flagAuthor[] | []
+  name?: string;
+  email?: string;
+  url?: string;
+  flagged: boolean,
+  packages: unknown[],
+  expirationDate: string,
+  mxRecords: unknown[],
 }
 export interface flagAuthor {
   name: string,

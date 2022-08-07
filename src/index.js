@@ -22,7 +22,7 @@ function splitAuthorNameEmail(author) {
 
 // Add options to disable whois
 // Since whois.iana may have a rate limit
-export async function extractAllAuthorsFromLibrary(library, flags = []) {
+export async function extractAllAuthorsFromLibrary(library, opts = { flags: [], domainInformations: false }) {
   if (!("dependencies" in library)) {
     return [];
   }
@@ -57,9 +57,13 @@ export async function extractAllAuthorsFromLibrary(library, flags = []) {
     }
   }
 
-  const authorsWithFlags = addFlagsInResponse(useLevenshtein(authors), flags);
+  const authorsWithFlags = addFlagsInResponse(useLevenshtein(authors), opts.flags);
 
-  return addDomainInformations(authorsWithFlags);
+  if (opts.domainInformations === true) {
+    return addDomainInformations(authorsWithFlags);
+  }
+
+  return authorsWithFlags;
 }
 
 async function addDomainInformations(authors) {
