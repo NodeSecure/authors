@@ -1,5 +1,7 @@
 // Import Internal Dependencies
 import { useLevenshtein } from "./levenshtein.js";
+import { getDomainExpirationFromMemory, storeDomainExpirationInMemory } from "./helper.js";
+import { whois, resolveMxRecords } from "@nodesecure/domain-check";
 
 function splitAuthorNameEmail(author) {
   const indexStartEmail = author.name.search(/[<]/g);
@@ -18,7 +20,9 @@ function splitAuthorNameEmail(author) {
   };
 }
 
-export function extractAllAuthorsFromLibrary(library, flags = []) {
+// Add options to disable whois
+// Since whois.iana may have a rate limit
+export async function extractAllAuthorsFromLibrary(library, flags = []) {
   if (!("dependencies" in library)) {
     return [];
   }
@@ -53,7 +57,34 @@ export function extractAllAuthorsFromLibrary(library, flags = []) {
     }
   }
 
-  return addFlagsInResponse(useLevenshtein(authors), flags);
+  const authorsWithFlags = addFlagsInResponse(useLevenshtein(authors), flags);
+
+  return addDomainInformations(authorsWithFlags);
+}
+
+async function addDomainInformations(authors) {
+  for (const author of authors) {
+    if (author.email === "") {
+      continue ;
+    }
+
+    const domain = author.email.split("@")[1];
+    const mxRecords = await resolveMxRecords(domain);
+
+    if (getDomainExpirationFromMemory(domain) !== undefined) {
+      author.expirationDate = getDomainExpirationFromMemory(domain);
+      author.mxRecords = mxRecords;
+
+      continue ;
+    }
+
+    const expirationDate = await whois(domain);
+    storeDomainExpirationInMemory({ domain, expirationDate });
+    author.expirationDate = expirationDate;
+    author.mxRecords = mxRecords;
+  }
+
+  return authors;
 }
 
 function addFlagsInResponse(authors, flags) {
