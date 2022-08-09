@@ -20,8 +20,6 @@ function splitAuthorNameEmail(author) {
   };
 }
 
-// Add options to disable whois
-// Since whois.iana may have a rate limit
 export async function extractAllAuthorsFromLibrary(library, opts = { flags: [], domainInformations: false }) {
   if (!("dependencies" in library)) {
     return [];
@@ -67,11 +65,10 @@ export async function extractAllAuthorsFromLibrary(library, opts = { flags: [], 
 }
 
 async function addDomainInformations(authors) {
-  for (const author of authors) {
+  return Promise.all(authors.map(async(author) => {
     if (author.email === "") {
-      continue ;
+      return author;
     }
-
     const domain = author.email.split("@")[1];
     const mxRecords = await resolveMxRecords(domain);
 
@@ -79,16 +76,16 @@ async function addDomainInformations(authors) {
       author.expirationDate = getDomainExpirationFromMemory(domain);
       author.mxRecords = mxRecords;
 
-      continue ;
+      return author;
     }
 
     const expirationDate = await whois(domain);
     storeDomainExpirationInMemory({ domain, expirationDate });
     author.expirationDate = expirationDate;
     author.mxRecords = mxRecords;
-  }
 
-  return authors;
+    return author;
+  }));
 }
 
 function addFlagsInResponse(authors, flags) {
