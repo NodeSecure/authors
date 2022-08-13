@@ -1,5 +1,7 @@
 // Import Internal Dependencies
 import { useLevenshtein } from "./levenshtein.js";
+import { getDomainExpirationFromMemory, storeDomainExpirationInMemory } from "./helper.js";
+import { whois, resolveMxRecords } from "@nodesecure/domain-check";
 
 function splitAuthorNameEmail(author) {
   const indexStartEmail = author.name.search(/[<]/g);
@@ -18,7 +20,7 @@ function splitAuthorNameEmail(author) {
   };
 }
 
-export function extractAllAuthorsFromLibrary(library, flags = []) {
+export async function extractAllAuthorsFromLibrary(library, opts = { flags: [], domainInformations: false }) {
   if (!("dependencies" in library)) {
     return [];
   }
@@ -53,7 +55,39 @@ export function extractAllAuthorsFromLibrary(library, flags = []) {
     }
   }
 
-  return addFlagsInResponse(useLevenshtein(authors), flags);
+  const authorsWithFlags = addFlagsInResponse(useLevenshtein(authors), opts.flags);
+
+  if (opts.domainInformations === true) {
+    return addDomainInformations(authorsWithFlags);
+  }
+
+  return authorsWithFlags;
+}
+
+async function addDomainInformations(authors) {
+  return Promise.all(authors.map(async(author) => {
+    if (author.email === "") {
+      return author;
+    }
+    const domain = author.email.split("@")[1];
+    const mxRecords = await resolveMxRecords(domain);
+
+    if (getDomainExpirationFromMemory(domain) !== undefined) {
+      author.domain = {
+        expirationDate: getDomainExpirationFromMemory(domain),
+        mxRecords
+      };
+
+      return author;
+    }
+
+    const expirationDate = await whois(domain);
+    storeDomainExpirationInMemory({ domain, expirationDate });
+    author.expirationDate = expirationDate;
+    author.mxRecords = mxRecords;
+
+    return author;
+  }));
 }
 
 function addFlagsInResponse(authors, flags) {
