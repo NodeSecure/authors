@@ -73,8 +73,10 @@ async function addDomainInformations(authors) {
     const mxRecords = await resolveMxRecords(domain);
 
     if (getDomainExpirationFromMemory(domain) !== undefined) {
-      author.expirationDate = getDomainExpirationFromMemory(domain);
-      author.mxRecords = mxRecords;
+      author.domain = {
+        expirationDate: getDomainExpirationFromMemory(domain),
+        mxRecords
+      };
 
       return author;
     }
