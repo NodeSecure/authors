@@ -1,7 +1,16 @@
 // Import Internal Dependencies
 import { useLevenshtein } from "./levenshtein.js";
-import { getDomainExpirationFromMemory, storeDomainExpirationInMemory } from "./helper.js";
+import {
+  getDomainExpirationFromMemory,
+  storeDomainExpirationInMemory,
+  hasBeenActive
+} from "./helper.js";
+
+// Import Third-party Dependencies
 import { whois, resolveMxRecords } from "@nodesecure/domain-check";
+import { getContributorLastActivities } from "@nodesecure/github";
+
+const kGithubUrl = "https://github.com/";
 
 function splitAuthorNameEmail(author) {
   const indexStartEmail = author.name.search(/[<]/g);
@@ -20,6 +29,44 @@ function splitAuthorNameEmail(author) {
   };
 }
 
+function hasBeenActiveOnNpm(author) {
+  if (!author.at) {
+    return false;
+  }
+
+  return hasBeenActive(author.at);
+}
+
+async function hasBeenActiveOnGithub(authors, homepage) {
+  if (!homepage.startsWith(kGithubUrl)) {
+    return authors;
+  }
+
+  const [owner, repository] = homepage.replace(kGithubUrl, "").split("/");
+  const parsedRepositoryName = repository.endsWith("#readme") ? repository.replace("#readme", "") : repository;
+
+  return Promise.all(authors.map(async(author) => {
+    const [lastEvent, lastRelatedEvent] = await getContributorLastActivities({
+      owner,
+      repository: parsedRepositoryName,
+      contributor: author.name
+    }) ?? [];
+
+    if (!lastEvent) {
+      author.hasBeenActiveOnGithub = null;
+      author.hasBeenActiveOnGithubRepo = null;
+
+      return author;
+    }
+
+    author.hasBeenActiveOnGithub = hasBeenActive(lastEvent.lastActivity);
+    author.hasBeenActiveOnGithubRepo = lastRelatedEvent ?
+      hasBeenActive(lastRelatedEvent.lastActivity) : false;
+
+    return author;
+  }));
+}
+
 export async function extractAllAuthorsFromLibrary(library, opts = { flags: [], domainInformations: false }) {
   if (!("dependencies" in library)) {
     return [];
@@ -27,20 +74,18 @@ export async function extractAllAuthorsFromLibrary(library, opts = { flags: [], 
 
   const authors = [];
 
-  for (let index = 0; index < Object.values(library.dependencies).length; index++) {
-    const currPackage = {
-      packageName: Object.keys(library.dependencies)[index],
-      ...Object.values(library.dependencies)[index]
-    };
+  for (const [packageName, packageData] of Object.entries(library.dependencies)) {
+    const { author, maintainers, publishers, homepage, lastVersion } = packageData.metadata;
 
-    const { author, maintainers, publishers } = currPackage.metadata;
     const packageMeta = {
-      homepage: currPackage.metadata.homepage || "",
-      spec: currPackage.packageName,
-      versions: currPackage.metadata.lastVersion
+      homepage: homepage || "",
+      spec: packageName,
+      versions: lastVersion
     };
 
-    const authorsFound = formatAuthors({ author, maintainers, publishers });
+    let authorsFound = formatAuthors({ author, maintainers, publishers });
+
+    authorsFound = await hasBeenActiveOnGithub(authorsFound, homepage);
 
     for (const author of authorsFound) {
       authors.push({
@@ -49,8 +94,11 @@ export async function extractAllAuthorsFromLibrary(library, opts = { flags: [], 
         flagged: false,
         packages: [{
           ...packageMeta,
-          isPublishers: Boolean(author.at)
-        }]
+          isPublishers: Boolean(author.at),
+          havePublishRecently: hasBeenActiveOnNpm(author),
+          hasBeenActiveOnGithubRepo: author.hasBeenActiveOnGithubRepo
+        }],
+        hasBeenActiveOnGithub: author.hasBeenActiveOnGithub
       });
     }
   }
