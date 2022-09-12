@@ -40,14 +40,20 @@ const authors = extractAllAuthorsFromLibrary(library, flaggedAuthors);
 //         homepage: "https://github.com/blakeembrey/array-flatten",
 //         spec: "array-flatten",
 //         versions: "3.0.0",
-//         isPublishers: false
+//         isPublishers: false,
+//         havePublishRecently: false,
+//         hasBeenActiveOnGithubRepo: null
 //       },
 //       {
 //         homepage: "https://github.com/pillarjs/path-to-regexp#readme",
 //         spec: "path-to-regexp",
 //         versions: "6.2.0",
-//         isPublishers: true
+//         isPublishers: true,
+//         havePublishRecently: true,
+//         hasBeenActiveOnGithubRepo: false
 //       }
+//     ],
+//     hasBeenActiveOnGithub: true
 //   }
 // ]
 ```

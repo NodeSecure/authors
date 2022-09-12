@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "@myunisoft/httpie": "^1.4.1",
-    "@nodesecure/domain-check": "^1.0.0"
+    "@nodesecure/domain-check": "^1.0.0",
+    "dayjs": "^1.11.5"
   }
 }

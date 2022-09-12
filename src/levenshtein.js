@@ -77,6 +77,10 @@ export function useLevenshtein(authors) {
         author.email = author.email.length > currAuthor.email.length ? author.email : currAuthor.email;
         author.name = author.name.length > currAuthor.name.length ? author.name : currAuthor.name;
 
+        if (author.hasBeenActiveOnGithub === null) {
+          author.hasBeenActiveOnGithub = currAuthor.hasBeenActiveOnGithub;
+        }
+
         if ("packages" in currAuthor) {
           author.packages.push(...currAuthor.packages);
         }

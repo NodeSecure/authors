@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 // Import Node.js Dependencies
 import { readFile } from "fs/promises";
 
@@ -40,15 +39,20 @@ test("test authors from library with flag", async(tape) => {
         homepage: "https://github.com/blakeembrey/array-flatten",
         spec: "array-flatten",
         versions: "3.0.0",
-        isPublishers: false
+        isPublishers: false,
+        havePublishRecently: false,
+        hasBeenActiveOnGithubRepo: null
       },
       {
         homepage: "https://github.com/pillarjs/path-to-regexp#readme",
         spec: "path-to-regexp",
         versions: "6.2.1",
-        isPublishers: true
+        isPublishers: true,
+        havePublishRecently: true,
+        hasBeenActiveOnGithubRepo: false
       }
-    ]
+    ],
+    hasBeenActiveOnGithub: true
   }]);
   tape.end();
 });
