@@ -47,7 +47,7 @@ export async function extractAllAuthorsFromLibrary(library, opts = { flags: [], 
         continue;
       }
       authors.push({
-        name: author.name || "",
+        name: author.name,
         email: author.email,
         flagged: false,
         packages: [{
