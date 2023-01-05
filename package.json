@@ -41,7 +41,7 @@
     "tape": "^5.6.1"
   },
   "dependencies": {
-    "@myunisoft/httpie": "^1.4.1",
+    "@myunisoft/httpie": "^1.10.0",
     "@nodesecure/domain-check": "^1.0.1"
   }
 }
