@@ -43,8 +43,11 @@ export async function extractAllAuthorsFromLibrary(library, opts = { flags: [], 
     const authorsFound = formatAuthors({ author, maintainers, publishers });
 
     for (const author of authorsFound) {
+      if (author === undefined) {
+        continue;
+      }
       authors.push({
-        name: author.name,
+        name: author.name || "",
         email: author.email,
         flagged: false,
         packages: [{
@@ -53,6 +56,9 @@ export async function extractAllAuthorsFromLibrary(library, opts = { flags: [], 
         }]
       });
     }
+  }
+  if (authors.length === 0) {
+    return [];
   }
 
   const authorsWithFlags = addFlagsInResponse(useLevenshtein(authors), opts.flags);
@@ -65,9 +71,9 @@ export async function extractAllAuthorsFromLibrary(library, opts = { flags: [], 
 }
 
 async function addDomainInformations(authors) {
-  return Promise.all(authors.map(async(author) => {
+  for (const author of authors) {
     if (author.email === "") {
-      return author;
+      continue;
     }
     const domain = author.email.split("@")[1];
     const mxRecords = await resolveMxRecords(domain);
@@ -78,17 +84,20 @@ async function addDomainInformations(authors) {
         mxRecords
       };
 
-      return author;
+      continue;
     }
 
     const expirationDate = await whois(domain);
     storeDomainExpirationInMemory({ domain, expirationDate });
-    author.expirationDate = expirationDate;
-    author.mxRecords = mxRecords;
+    author.domain = {
+      expirationDate,
+      mxRecords
+    };
+  }
 
-    return author;
-  }));
+  return authors;
 }
+
 
 function addFlagsInResponse(authors, flags) {
   for (const author of authors) {
@@ -126,8 +135,9 @@ function iterateOver(iterable, arrayAuthors) {
 function formatAuthors({ author, maintainers, publishers }) {
   const authors = [];
 
-  authors.push(splitAuthorNameEmail(author));
-
+  if (author?.name !== undefined) {
+    authors.push(splitAuthorNameEmail(author));
+  }
   iterateOver(maintainers, authors);
   iterateOver(publishers, authors);
 

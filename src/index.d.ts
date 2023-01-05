@@ -1,7 +1,7 @@
 // Import Third-party Dependencies
 import { Scanner } from "@nodesecure/scanner";
 
-export function extractAllAuthorsFromLibrary(library: Scanner.Payload, opts: options): Promise<authorResponse[]>
+export function extractAllAuthorsFromLibrary(library: Scanner.Payload, opts: options): Promise<authorResponse[] | []>
 
 export interface options {
   flags: flagAuthor[],
