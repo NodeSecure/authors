@@ -2,8 +2,7 @@
 ![version](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/NodeSecure/authors/master/package.json&query=$.version&label=Version)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/NodeSecure/authors/commit-activity)
 [![mit](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/NodeSecure/authors/blob/master/LICENSE)
-![build](https://img.shields.io/github/workflow/status/NodeSecure/authors/Node.js%20CI)
-
+![build](https://img.shields.io/github/actions/workflow/status/NodeSecure/authors/main.yml)
 NodeSecure (npm) authors analysis package
 
 ## Requirements
