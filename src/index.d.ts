@@ -1,11 +1,16 @@
 // Import Third-party Dependencies
 import { Scanner } from "@nodesecure/scanner";
 
-export function extractAllAuthorsFromLibrary(library: Scanner.Payload, opts: ExtractAllAuthorsFromLibraryOptions): Promise<AuthorResponse[]>
+export function extractAllAuthors(library: Scanner.Payload, opts: options): Promise<extractionResult>
 
-export interface ExtractAllAuthorsFromLibraryOptions {
-  flags: FlagAuthor[],
+export interface options {
+  flags: extractedAuthor[],
   domainInformations: boolean,
+}
+
+export interface extractionResult {
+  authors: author[],
+  flaggedAuthors: extractedAuthor[],
 }
 
 export type Package = Record<string, any> & {
@@ -13,20 +18,23 @@ export type Package = Record<string, any> & {
   hasBeenActiveOnGithubRepo: boolean | null;
 }
 
-export interface AuthorResponse {
+export interface author {
   name?: string;
   email?: string;
   url?: string;
-  flagged: boolean;
-  packages: Package[];
+  packages: {
+    homepage: string,
+    spec: string,
+    version: string,
+    at?: string,
+  }[],
   hasBeenActiveOnGithub: boolean | null;
   domain?: {
     expirationDate?: string;
     mxRecords?: string[];
   }
 }
-
-export interface FlagAuthor {
-  name: string;
-  email: string;
+export interface extractedAuthor {
+  name: string,
+  email: string,
 }
