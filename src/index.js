@@ -49,10 +49,9 @@ export async function extractAllAuthorsFromLibrary(library, opts = { flags: [], 
       authors.push({
         name: author.name,
         email: author.email,
-        flagged: false,
         packages: [{
           ...packageMeta,
-          isPublishers: Boolean(author.at)
+          ...(author?.at ? { at: author.at } : {})
         }]
       });
     }
@@ -61,13 +60,16 @@ export async function extractAllAuthorsFromLibrary(library, opts = { flags: [], 
     return [];
   }
 
-  const authorsWithFlags = addFlagsInResponse(useLevenshtein(authors), opts.flags);
+  const authorsFlagged = findFlaggedAuthors(useLevenshtein(authors), opts.flags);
 
   if (opts.domainInformations === true) {
-    return addDomainInformations(authorsWithFlags);
+    return addDomainInformations(authors);
   }
 
-  return authorsWithFlags;
+  return {
+    authorsFlagged,
+    authors
+  };
 }
 
 async function addDomainInformations(authors) {
@@ -99,16 +101,17 @@ async function addDomainInformations(authors) {
 }
 
 
-function addFlagsInResponse(authors, flags) {
+function findFlaggedAuthors(authors, flags) {
+  const res = [];
   for (const author of authors) {
     for (const flag of flags) {
       if (flag.name === author.name || flag.email === author.email) {
-        author.flagged = true;
+        res.push({ name: author.name, email: author.email });
       }
     }
   }
 
-  return authors;
+  return res;
 }
 
 

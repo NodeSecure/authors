@@ -17,38 +17,38 @@ const nsecureTestFile = JSON.parse(
 test("All authors from library without flags involved", async(tape) => {
   const packageTest = nsecureTestFile;
 
-  const authors = await extractAllAuthorsFromLibrary(packageTest, { flags: [], domainInformations: true });
+  const res = await extractAllAuthorsFromLibrary(packageTest, { flags: [], domainInformations: true });
 
-  tape.isNot(authors.length, 0, "There should be authors in the response");
+  tape.isNot(res.authors.length, 0, "There should be authors in the response");
   tape.end();
 });
 
 test("test authors from library with flag", async(tape) => {
   const packageTest = nsecureTestFile;
   const flaggedAuthors = [
-    { name: "Blakeembrey", email: "hello@blakeembrey.com" }
+    { name: "kesla", email: "david.bjorklund@gmail.com" }
   ];
-  const authors = await extractAllAuthorsFromLibrary(packageTest, {
+  const res = await extractAllAuthorsFromLibrary(packageTest, {
     flags: flaggedAuthors
   });
-  tape.deepEqual(authors.slice(4, 5), [{
-    name: "Blake Embrey",
-    email: "hello@blakeembrey.com",
-    flagged: true,
-    packages: [
+
+  tape.deepEqual(res.authorsFlagged, flaggedAuthors);
+  tape.deepEqual(res.authors.slice(1, 2),
+    [
       {
-        homepage: "https://github.com/blakeembrey/array-flatten",
-        spec: "array-flatten",
-        versions: "3.0.0",
-        isPublishers: false
-      },
-      {
-        homepage: "https://github.com/pillarjs/path-to-regexp#readme",
-        spec: "path-to-regexp",
-        versions: "6.2.1",
-        isPublishers: true
+        name: "kesla",
+        email: "david.bjorklund@gmail.com",
+        packages:
+          [
+            {
+              homepage: "https://github.com/jshttp/etag#readme",
+              spec: "etag",
+              versions: "1.8.1",
+              at: "2014-05-18T11:14:58.281Z"
+            }
+          ]
       }
     ]
-  }]);
+  );
   tape.end();
 });
