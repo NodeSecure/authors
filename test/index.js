@@ -6,7 +6,7 @@ import { readFile } from "fs/promises";
 import test from "tape";
 
 // Import Internal Dependencies
-import { extractAllAuthorsFromLibrary } from "../src/index.js";
+import { extractAllAuthors } from "../src/index.js";
 
 const nsecureTestFile = JSON.parse(
   await readFile(
@@ -17,7 +17,7 @@ const nsecureTestFile = JSON.parse(
 test("All authors from library without flags involved", async(tape) => {
   const packageTest = nsecureTestFile;
 
-  const res = await extractAllAuthorsFromLibrary(packageTest, { flags: [], domainInformations: true });
+  const res = await extractAllAuthors(packageTest, { flags: [], domainInformations: true });
 
   tape.isNot(res.authors.length, 0, "There should be authors in the response");
   tape.end();
@@ -28,7 +28,7 @@ test("test authors from library with flag", async(tape) => {
   const flaggedAuthors = [
     { name: "kesla", email: "david.bjorklund@gmail.com" }
   ];
-  const res = await extractAllAuthorsFromLibrary(packageTest, {
+  const res = await extractAllAuthors(packageTest, {
     flags: flaggedAuthors
   });
 

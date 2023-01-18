@@ -1,19 +1,19 @@
 // Import Third-party Dependencies
 import { Scanner } from "@nodesecure/scanner";
 
-export function extractAllAuthorsFromLibrary(library: Scanner.Payload, opts: options): Promise<response>
+export function extractAllAuthors(library: Scanner.Payload, opts: options): Promise<extractionResult>
 
 export interface options {
-  flags: flaggedAuthors[],
+  flags: extractedAuthor[],
   domainInformations: boolean,
 }
 
-export interface response {
-  authors: authorResponse[],
-  flaggedAuthors: flaggedAuthors[],
+export interface extractionResult {
+  authors: author[],
+  flaggedAuthors: extractedAuthor[],
 }
 
-export interface authorResponse {
+export interface author {
   name?: string;
   email?: string;
   url?: string;
@@ -28,7 +28,7 @@ export interface authorResponse {
     mxRecords?: unknown[],
   }
 }
-export interface flaggedAuthors {
+export interface extractedAuthor {
   name: string,
   email: string,
 }

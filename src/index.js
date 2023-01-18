@@ -20,7 +20,7 @@ function splitAuthorNameEmail(author) {
   };
 }
 
-export async function extractAllAuthorsFromLibrary(library, opts = { flags: [], domainInformations: false }) {
+export async function extractAllAuthors(library, opts = { flags: [], domainInformations: false }) {
   if (!("dependencies" in library)) {
     return [];
   }
