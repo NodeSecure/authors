@@ -32,7 +32,7 @@
   "homepage": "https://github.com/NodeSecure/authors#readme",
   "devDependencies": {
     "@nodesecure/eslint-config": "^1.6.0",
-    "@nodesecure/scanner": "^3.8.2",
+    "@nodesecure/scanner": "^4.0.0",
     "@npm/types": "^1.0.2",
     "@small-tech/esm-tape-runner": "^2.0.0",
     "@small-tech/tap-monkey": "^1.4.0",
