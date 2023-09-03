@@ -2,12 +2,12 @@
   "name": "@nodesecure/authors",
   "version": "1.0.2",
   "description": "NodeSecure (npm) authors analysis package",
-  "exports": "./src/index.js",
+  "exports": "./index.js",
   "type": "module",
-  "types": "./src/index.d.ts",
+  "types": "./index.d.ts",
   "scripts": {
     "lint": "cross-env eslint ./src",
-    "test-only": "cross-env esm-tape-runner 'test/**/*.js' | tap-monkey",
+    "test-only": "node --test test/",
     "test": "npm run lint && npm run test-only",
     "coverage": "c8 -r html npm test"
   },
@@ -22,6 +22,8 @@
     "npm"
   ],
   "files": [
+    "index.js",
+    "index.d.ts",
     "src"
   ],
   "author": "GENTILHOMME Thomas <gentilhomme.thomas@gmail.com>",
@@ -31,17 +33,13 @@
   },
   "homepage": "https://github.com/NodeSecure/authors#readme",
   "devDependencies": {
-    "@nodesecure/eslint-config": "^1.6.0",
-    "@nodesecure/scanner": "^3.8.2",
+    "@nodesecure/eslint-config": "^1.8.0",
+    "@nodesecure/scanner": "^4.0.0",
     "@npm/types": "^1.0.2",
-    "@small-tech/esm-tape-runner": "^2.0.0",
-    "@small-tech/tap-monkey": "^1.4.0",
-    "c8": "^7.12.0",
-    "cross-env": "^7.0.3",
-    "tape": "^5.6.3"
+    "c8": "^8.0.1"
   },
   "dependencies": {
-    "@myunisoft/httpie": "^1.10.0",
+    "@myunisoft/httpie": "^2.0.1",
     "@nodesecure/domain-check": "^1.0.1"
   }
 }

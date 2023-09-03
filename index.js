@@ -1,28 +1,16 @@
-// Import Internal Dependencies
-import { useLevenshtein } from "./levenshtein.js";
-import { getDomainExpirationFromMemory, storeDomainExpirationInMemory } from "./helper.js";
+// Import Third-party Dependencies
 import { whois, resolveMxRecords } from "@nodesecure/domain-check";
 
-function splitAuthorNameEmail(author) {
-  const indexStartEmail = author.name.search(/[<]/g);
-  const indexEndEmail = author.name.search(/[>]/g);
+// Import Internal Dependencies
+import { useLevenshtein } from "./src/levenshtein.js";
+import { getDomainExpirationFromMemory, storeDomainExpirationInMemory } from "./src/helper.js";
 
-  if (indexStartEmail === -1 && indexEndEmail === -1) {
-    return {
-      name: author.name,
-      email: "email" in author ? author.email : ""
-    };
-  }
-
-  return {
-    name: author.substring(0, indexStartEmail).trim(),
-    email: author.substring(indexStartEmail, indexEndEmail).trim()
-  };
-}
-
-export async function extractAllAuthors(library, opts = { flags: [], domainInformations: false }) {
+export async function extractAllAuthors(
+  library,
+  opts = { flags: [], domainInformations: false }
+) {
   if (!("dependencies" in library)) {
-    return [];
+    throw new Error("You must provide a list of dependencies");
   }
 
   const authors = [];
@@ -57,13 +45,18 @@ export async function extractAllAuthors(library, opts = { flags: [], domainInfor
     }
   }
   if (authors.length === 0) {
-    return [];
+    return {
+      authorsFlagged: [],
+      authors: []
+    };
   }
 
-  const authorsFlagged = findFlaggedAuthors(useLevenshtein(authors), opts.flags);
-
-  if (opts.domainInformations === true) {
-    return addDomainInformations(authors);
+  const authorsFlagged = findFlaggedAuthors(
+    useLevenshtein(authors),
+    opts.flags
+  );
+  if (opts.domainInformations) {
+    addDomainInformations(authors);
   }
 
   return {
@@ -100,7 +93,6 @@ async function addDomainInformations(authors) {
   return authors;
 }
 
-
 function findFlaggedAuthors(authors, flags) {
   const res = [];
   for (const author of authors) {
@@ -114,6 +106,17 @@ function findFlaggedAuthors(authors, flags) {
   return res;
 }
 
+function formatAuthors({ author, maintainers, publishers }) {
+  const authors = [];
+
+  if (author?.name !== undefined) {
+    authors.push(splitAuthorNameEmail(author));
+  }
+  iterateOver(maintainers, authors);
+  iterateOver(publishers, authors);
+
+  return useLevenshtein(authors);
+}
 
 function iterateOver(iterable, arrayAuthors) {
   for (const contributor of iterable) {
@@ -135,14 +138,19 @@ function iterateOver(iterable, arrayAuthors) {
   }
 }
 
-function formatAuthors({ author, maintainers, publishers }) {
-  const authors = [];
+function splitAuthorNameEmail(author) {
+  const indexStartEmail = author.name.search(/[<]/g);
+  const indexEndEmail = author.name.search(/[>]/g);
 
-  if (author?.name !== undefined) {
-    authors.push(splitAuthorNameEmail(author));
+  if (indexStartEmail === -1 && indexEndEmail === -1) {
+    return {
+      name: author.name,
+      email: "email" in author ? author.email : ""
+    };
   }
-  iterateOver(maintainers, authors);
-  iterateOver(publishers, authors);
 
-  return useLevenshtein(authors);
+  return {
+    name: author.substring(0, indexStartEmail).trim(),
+    email: author.substring(indexStartEmail, indexEndEmail).trim()
+  };
 }
