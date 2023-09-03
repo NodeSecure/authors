@@ -1,5 +1,5 @@
-// Constant
-const KMaxLevenshtein = 2;
+// CONSTANTS
+const kMaxLevenshteinDistance = 2;
 
 export function separateWord(word) {
   const separators = [",", " ", "."];
@@ -19,7 +19,7 @@ export function separateWord(word) {
 
 export function isSimilar(firstWord, secondWord, isWordSeparated = false) {
   if (!firstWord || !secondWord) {
-    return KMaxLevenshtein;
+    return kMaxLevenshteinDistance;
   }
   const word1 = firstWord.toLowerCase();
   const word2 = secondWord.toLowerCase();
@@ -72,8 +72,8 @@ export function useLevenshtein(authors) {
     const currAuthor = authors[index];
 
     for (const author of authorsResponse) {
-      if (isSimilar(author.email, currAuthor.email) < KMaxLevenshtein
-      || isSimilar(author.name, currAuthor.name, true) < KMaxLevenshtein) {
+      if (isSimilar(author.email, currAuthor.email) < kMaxLevenshteinDistance
+      || isSimilar(author.name, currAuthor.name, true) < kMaxLevenshteinDistance) {
         author.email = author.email.length > currAuthor.email.length ? author.email : currAuthor.email;
         author.name = author.name.length > currAuthor.name.length ? author.name : currAuthor.name;
 

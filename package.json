@@ -40,6 +40,6 @@
   },
   "dependencies": {
     "@myunisoft/httpie": "^2.0.1",
-    "@nodesecure/domain-check": "^1.0.1"
+    "@openally/result": "^1.2.0"
   }
 }

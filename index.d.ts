@@ -4,7 +4,7 @@ import { Scanner } from "@nodesecure/scanner";
 export function extractAllAuthors(library: Scanner.Payload, opts: options): Promise<extractionResult>
 
 export interface options {
-  flags: extractedAuthor[],
+  flaggedAuthors: extractedAuthor[],
   domainInformations: boolean,
 }
 

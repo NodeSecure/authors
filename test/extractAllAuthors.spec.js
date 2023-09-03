@@ -13,22 +13,21 @@ const kFixtureNodeSecurePayload = JSON.parse(
   )
 );
 
-// test("All authors from library without flags involved", async() => {
-//   const res = await extractAllAuthors(kFixtureNodeSecurePayload, {
-//     flags: [],
-//     domainInformations: true
-//   });
-//   console.log(res);
+test("All authors from library without flags involved", async() => {
+  const res = await extractAllAuthors(kFixtureNodeSecurePayload, {
+    flags: [],
+    domainInformations: true
+  });
 
-//   assert.strictEqual(res.authors.length, 0, "There should be authors in the response");
-// });
+  assert.ok(res.authors.length > 0, "There should be authors in the response");
+});
 
 test("test authors from library with flag", async() => {
   const flaggedAuthors = [
     { name: "kesla", email: "david.bjorklund@gmail.com" }
   ];
   const res = await extractAllAuthors(kFixtureNodeSecurePayload, {
-    flags: flaggedAuthors
+    flaggedAuthors
   });
 
   assert.deepEqual(res.authorsFlagged, flaggedAuthors);

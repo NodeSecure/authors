@@ -1,20 +1,19 @@
-// Import Third-party Dependencies
-import { whois, resolveMxRecords } from "@nodesecure/domain-check";
-
 // Import Internal Dependencies
+import { whois } from "./src/whois.js";
+import { resolveMxRecords } from "./src/dns.js";
 import { useLevenshtein } from "./src/levenshtein.js";
 import { getDomainExpirationFromMemory, storeDomainExpirationInMemory } from "./src/helper.js";
+import * as utils from "./src/utils.js";
 
 export async function extractAllAuthors(
   library,
-  opts = { flags: [], domainInformations: false }
+  opts = { flaggedAuthors: [], domainInformations: false }
 ) {
   if (!("dependencies" in library)) {
     throw new Error("You must provide a list of dependencies");
   }
 
   const authors = [];
-
   for (let index = 0; index < Object.values(library.dependencies).length; index++) {
     const currPackage = {
       packageName: Object.keys(library.dependencies)[index],
@@ -28,7 +27,7 @@ export async function extractAllAuthors(
       versions: currPackage.metadata.lastVersion
     };
 
-    const authorsFound = formatAuthors({ author, maintainers, publishers });
+    const authorsFound = utils.formatAuthors({ author, maintainers, publishers });
 
     for (const author of authorsFound) {
       if (author === undefined) {
@@ -51,10 +50,10 @@ export async function extractAllAuthors(
     };
   }
 
-  const authorsFlagged = findFlaggedAuthors(
+  const authorsFlagged = Array.from(findFlaggedAuthors(
     useLevenshtein(authors),
-    opts.flags
-  );
+    opts.flaggedAuthors
+  ));
   if (opts.domainInformations) {
     addDomainInformations(authors);
   }
@@ -71,7 +70,11 @@ async function addDomainInformations(authors) {
       continue;
     }
     const domain = author.email.split("@")[1];
-    const mxRecords = await resolveMxRecords(domain);
+    const mxRecordsResult = await resolveMxRecords(domain);
+    if (!mxRecordsResult.ok) {
+      continue;
+    }
+    const mxRecords = mxRecordsResult.safeUnwrap();
 
     if (getDomainExpirationFromMemory(domain) !== undefined) {
       author.domain = {
@@ -93,64 +96,12 @@ async function addDomainInformations(authors) {
   return authors;
 }
 
-function findFlaggedAuthors(authors, flags) {
-  const res = [];
+function* findFlaggedAuthors(authors, flaggedAuthors = []) {
   for (const author of authors) {
-    for (const flag of flags) {
-      if (flag.name === author.name || flag.email === author.email) {
-        res.push({ name: author.name, email: author.email });
+    for (const flaggedAuthor of flaggedAuthors) {
+      if (flaggedAuthor.name === author.name || flaggedAuthor.email === author.email) {
+        yield { name: author.name, email: author.email };
       }
     }
   }
-
-  return res;
-}
-
-function formatAuthors({ author, maintainers, publishers }) {
-  const authors = [];
-
-  if (author?.name !== undefined) {
-    authors.push(splitAuthorNameEmail(author));
-  }
-  iterateOver(maintainers, authors);
-  iterateOver(publishers, authors);
-
-  return useLevenshtein(authors);
-}
-
-function iterateOver(iterable, arrayAuthors) {
-  for (const contributor of iterable) {
-    if (arrayAuthors.find((el) => el.name === contributor.name)) {
-      const index = arrayAuthors.findIndex((el) => el.name === contributor.name);
-
-      if (arrayAuthors[index].email && arrayAuthors[index].name) {
-        if (contributor.at && contributor.version) {
-          arrayAuthors[index].at = contributor.at;
-          arrayAuthors[index].version = contributor.version;
-        }
-        continue;
-      }
-      arrayAuthors[index] = contributor;
-    }
-    else {
-      arrayAuthors.push(contributor);
-    }
-  }
-}
-
-function splitAuthorNameEmail(author) {
-  const indexStartEmail = author.name.search(/[<]/g);
-  const indexEndEmail = author.name.search(/[>]/g);
-
-  if (indexStartEmail === -1 && indexEndEmail === -1) {
-    return {
-      name: author.name,
-      email: "email" in author ? author.email : ""
-    };
-  }
-
-  return {
-    name: author.substring(0, indexStartEmail).trim(),
-    email: author.substring(indexStartEmail, indexEndEmail).trim()
-  };
 }
