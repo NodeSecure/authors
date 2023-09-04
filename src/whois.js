@@ -23,19 +23,22 @@ function* lazyParseIanaWhoisResponse(rawResponseStr) {
 export async function whois(domain, server = kDefaultSocketServer) {
   const client = new net.Socket();
   client.setTimeout(1_000);
-  setImmediate(() => client.connect(43, server, () => client.write(`${domain}\r\n`)));
+  client.connect(43, server, () => client.write(`${domain}\r\n`));
 
   try {
     const rawResponseStr = await streamConsumers.text(client);
-    const response = Object.fromEntries(lazyParseIanaWhoisResponse(rawResponseStr));
+    const response = Object.fromEntries(
+      lazyParseIanaWhoisResponse(rawResponseStr)
+    );
 
     if ("refer" in response && response.refer !== server) {
       return whois(domain, response.refer);
     }
 
-    return response["Registry Expiry Date"];
+    return response?.["Registry Expiry Date"] ?? null;
   }
   finally {
     client.destroy();
   }
 }
+

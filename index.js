@@ -1,6 +1,5 @@
 // Import Internal Dependencies
-import { whois } from "./src/whois.js";
-import { resolveMxRecords } from "./src/dns.js";
+import { getDomainInformations } from "./src/domains.js";
 import { useLevenshtein } from "./src/levenshtein.js";
 import { getDomainExpirationFromMemory, storeDomainExpirationInMemory } from "./src/helper.js";
 import * as utils from "./src/utils.js";
@@ -55,7 +54,7 @@ export async function extractAllAuthors(
     opts.flaggedAuthors
   ));
   if (opts.domainInformations) {
-    addDomainInformations(authors);
+    await addDomainInformations(authors);
   }
 
   return {
@@ -70,27 +69,10 @@ async function addDomainInformations(authors) {
       continue;
     }
     const domain = author.email.split("@")[1];
-    const mxRecordsResult = await resolveMxRecords(domain);
-    if (!mxRecordsResult.ok) {
-      continue;
+
+    if (domain) {
+      author.domain = await getDomainInformations(domain);
     }
-    const mxRecords = mxRecordsResult.safeUnwrap();
-
-    if (getDomainExpirationFromMemory(domain) !== undefined) {
-      author.domain = {
-        expirationDate: getDomainExpirationFromMemory(domain),
-        mxRecords
-      };
-
-      continue;
-    }
-
-    const expirationDate = await whois(domain);
-    storeDomainExpirationInMemory({ domain, expirationDate });
-    author.domain = {
-      expirationDate,
-      mxRecords
-    };
   }
 
   return authors;
