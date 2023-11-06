@@ -4,6 +4,9 @@
   "description": "NodeSecure (npm) authors analysis package",
   "exports": "./src/index.js",
   "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "types": "./src/index.d.ts",
   "scripts": {
     "lint": "cross-env eslint ./src",

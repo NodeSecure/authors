@@ -1,4 +1,5 @@
 # NodeSecure authors
+
 ![version](https://img.shields.io/badge/dynamic/json.svg?style=for-the-badge&url=https://raw.githubusercontent.com/NodeSecure/authors/master/package.json&query=$.version&label=Version)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg?style=for-the-badge)](https://github.com/NodeSecure/authors/graphs/commit-activity)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/NodeSecure/authors/badge?style=for-the-badge)](https://api.securityscorecards.dev/projects/github.com/NodeSecure/authors)
@@ -7,7 +8,8 @@
 NodeSecure (npm) authors analysis package
 
 ## Requirements
-- [Node.js](https://nodejs.org/en/) v14 or higher
+
+- [Node.js](https://nodejs.org/en/) v18 or higher
 
 ## Getting Started
 
@@ -24,9 +26,7 @@ $ yarn add @nodesecure/authors
 ```js
 import { extractAllAuthorsFromLibrary } from "@nodesecure/authors";
 
-const flaggedAuthors = [
-  { name: "Blake Embrey", email: "hello@blakeembrey.com" }
-];
+const flaggedAuthors = [{ name: "Blake Embrey", email: "hello@blakeembrey.com" }];
 
 const authors = extractAllAuthorsFromLibrary(library, flaggedAuthors);
 // Expect authors to be following this schema
@@ -59,7 +59,9 @@ TBC
 ## Contributors ✨
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+
 [![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
+
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
@@ -83,4 +85,5 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 ## License
+
 MIT
