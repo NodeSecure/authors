@@ -1,7 +1,9 @@
+import { FormattedAuthor } from "./utils";
+
 // CONSTANTS
 const kMaxLevenshteinDistance = 2;
 
-export function separateWord(word) {
+export function separateWord(word: string): string | string[] {
   const separators = [",", " ", "."];
   let separatorFound = "";
   let indexSeparator = -1;
@@ -17,7 +19,11 @@ export function separateWord(word) {
   return indexSeparator === -1 ? word : word.split(separatorFound);
 }
 
-export function isSimilar(firstWord, secondWord, isWordSeparated = false) {
+export function isSimilar(
+  firstWord: string | undefined,
+  secondWord: string | undefined,
+  isWordSeparated = false
+) {
   if (!firstWord || !secondWord) {
     return kMaxLevenshteinDistance;
   }
@@ -29,9 +35,11 @@ export function isSimilar(firstWord, secondWord, isWordSeparated = false) {
     const word2Splitted = separateWord(word2);
 
     const firstWord = isSimilar(
+      // @ts-ignore
       word1Splitted instanceof Array ? word1Splitted[0] : null,
       word2Splitted instanceof Array ? word2Splitted[0] : null);
     const secondWord = isSimilar(
+      // @ts-ignore
       word1Splitted instanceof Array ? word1Splitted[1] : null,
       word2Splitted instanceof Array ? word2Splitted[1] : null
     );
@@ -64,22 +72,26 @@ export function isSimilar(firstWord, secondWord, isWordSeparated = false) {
   return track[word2.length][word1.length];
 }
 
-export function useLevenshtein(authors) {
+export function useLevenshtein(
+  authors: FormattedAuthor[]
+): FormattedAuthor[] {
   const authorsResponse = [authors[0]];
 
   iterationAuthor:
-  for (let index = 1; index < authors.length; index++) {
-    const currAuthor = authors[index];
-
+  for (const currAuthor of authors) {
     for (const author of authorsResponse) {
-      if (isSimilar(author.email, currAuthor.email) < kMaxLevenshteinDistance
-      || isSimilar(author.name, currAuthor.name, true) < kMaxLevenshteinDistance) {
-        author.email = author.email.length > currAuthor.email.length ? author.email : currAuthor.email;
+      const hasSimilarEmail = isSimilar(author.email, currAuthor.email) < kMaxLevenshteinDistance;
+      const hasSimilarName = isSimilar(author.name, currAuthor.name, true) < kMaxLevenshteinDistance;
+
+      if (hasSimilarEmail || hasSimilarName) {
+        if (author.email && currAuthor.email) {
+          author.email = author.email.length > currAuthor.email.length ? author.email : currAuthor.email;
+        }
         author.name = author.name.length > currAuthor.name.length ? author.name : currAuthor.name;
 
-        if ("packages" in currAuthor) {
-          author.packages.push(...currAuthor.packages);
-        }
+        // if ("packages" in currAuthor) {
+        //   author.packages.push(...currAuthor.packages);
+        // }
         continue iterationAuthor;
       }
     }

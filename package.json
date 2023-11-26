@@ -2,11 +2,12 @@
   "name": "@nodesecure/authors",
   "version": "1.0.2",
   "description": "NodeSecure (npm) authors analysis package",
-  "exports": "./index.js",
+  "exports": "./dist/index.js",
   "type": "module",
-  "types": "./index.d.ts",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "lint": "cross-env eslint ./src",
+    "build": "tsc",
+    "lint": "eslint src/*.ts",
     "test-only": "node --test test/",
     "test": "npm run lint && npm run test-only",
     "coverage": "c8 -r html npm test"
@@ -35,11 +36,13 @@
   "devDependencies": {
     "@nodesecure/eslint-config": "^1.8.0",
     "@nodesecure/scanner": "^4.0.0",
-    "@npm/types": "^1.0.2",
-    "c8": "^8.0.1"
+    "@types/node": "^20.5.9",
+    "c8": "^8.0.1",
+    "typescript": "^5.2.2"
   },
   "dependencies": {
     "@myunisoft/httpie": "^2.0.1",
+    "@npm/types": "^1.0.2",
     "@openally/result": "^1.2.0"
   }
 }
