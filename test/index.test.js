@@ -1,9 +1,8 @@
 /* eslint-disable max-len */
 // Import Node.js Dependencies
 import { readFile } from "fs/promises";
-
-// Import Third-party Dependencies
-import test from "tape";
+import { test } from "node:test";
+import assert from "node:assert";
 
 // Import Internal Dependencies
 import { extractAllAuthors } from "../src/index.js";
@@ -14,16 +13,14 @@ const nsecureTestFile = JSON.parse(
   )
 );
 
-test("All authors from library without flags involved", async(tape) => {
+test("All authors from library without flags involved", async() => {
   const packageTest = nsecureTestFile;
 
   const res = await extractAllAuthors(packageTest, { flags: [], domainInformations: true });
-
-  tape.isNot(res.authors.length, 0, "There should be authors in the response");
-  tape.end();
+  assert.notEqual(res.length, 0);
 });
 
-test("test authors from library with flag", async(tape) => {
+test("test authors from library with flag", async() => {
   const packageTest = nsecureTestFile;
   const flaggedAuthors = [
     { name: "kesla", email: "david.bjorklund@gmail.com" }
@@ -32,8 +29,8 @@ test("test authors from library with flag", async(tape) => {
     flags: flaggedAuthors
   });
 
-  tape.deepEqual(res.authorsFlagged, flaggedAuthors);
-  tape.deepEqual(res.authors.slice(1, 2),
+  assert.deepEqual(res.authorsFlagged, flaggedAuthors);
+  assert.deepEqual(res.authors.slice(1, 2),
     [
       {
         name: "kesla",
@@ -50,5 +47,4 @@ test("test authors from library with flag", async(tape) => {
       }
     ]
   );
-  tape.end();
 });
