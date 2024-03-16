@@ -9,8 +9,8 @@
   },
   "types": "./src/index.d.ts",
   "scripts": {
-    "lint": "cross-env eslint ./src",
-    "test-only": "cross-env esm-tape-runner 'test/**/*.js' | tap-monkey",
+    "lint": "eslint ./src",
+    "test-only": "node --test",
     "test": "npm run lint && npm run test-only",
     "coverage": "c8 -r html npm test"
   },
@@ -37,11 +37,7 @@
     "@nodesecure/eslint-config": "^1.6.0",
     "@nodesecure/scanner": "^3.8.2",
     "@npm/types": "^1.0.2",
-    "@small-tech/esm-tape-runner": "^2.0.0",
-    "@small-tech/tap-monkey": "^1.4.0",
-    "c8": "^7.12.0",
-    "cross-env": "^7.0.3",
-    "tape": "^5.6.3"
+    "c8": "^7.12.0"
   },
   "dependencies": {
     "@myunisoft/httpie": "^1.10.0",
