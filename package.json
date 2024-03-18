@@ -40,7 +40,7 @@
     "c8": "^7.12.0"
   },
   "dependencies": {
-    "@myunisoft/httpie": "^1.10.0",
+    "@myunisoft/httpie": "^4.0.1",
     "@nodesecure/domain-check": "^1.0.1"
   }
 }
